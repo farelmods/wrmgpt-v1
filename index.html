@@ -1085,7 +1085,8 @@ const state = {
         autoSave: true,
         language: "English",
         messageLimit: 5,
-        systemPrompt: "You are a helpful AI assistant." 
+        systemPrompt: "You are a helpful AI assistant.",
+        selectedModel: "wormgpt-v7"
     },
     messagesLeft: 5,
     currentChatId: null
@@ -1156,11 +1157,15 @@ function loadUserData() {
     
     state.settings = {
         darkMode: true, notifications: true, autoSave: true,
-        language: "English", messageLimit: 5, systemPrompt: "You are a helpful AI assistant." 
+        language: "English", messageLimit: 5, systemPrompt: "You are a helpful AI assistant.",
+        selectedModel: "wormgpt-v7"
     };
     
     if (savedSettings) {
         state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
+        if (!state.settings.selectedModel) {
+            state.settings.selectedModel = 'wormgpt-v7';
+        }
     }
     
     if (state.settings.darkMode === false) document.body.classList.add('light-mode');
@@ -1168,8 +1173,7 @@ function loadUserData() {
 }
 
 // --- API CONFIG ---
-const API_KEY = 'sk_live_d497343f-1fc4-46b7-b7b7-e873752b67dc823e';
-const API_URL = 'https://api.wrmgpt.com/v1/chat/completions';
+const API_URL = '/api/generate'; // Semua permintaan sekarang masuk ke proxy
 const chatbox = document.getElementById('chatbox');
 const input = document.getElementById('input');
 const heroSection = document.getElementById('heroSection');
@@ -1425,6 +1429,19 @@ function loadSettings() {
     const settingsDiv = document.getElementById('settingsContent');
     settingsDiv.innerHTML = '';
     
+    // Model Selection
+    const modelDiv = document.createElement('div');
+    modelDiv.className = 'settings-option';
+    modelDiv.innerHTML = `
+        <div class="settings-label">AI Model</div>
+        <select style="background: #111; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px;"
+                onchange="changeModel(this.value)">
+            <option value="wormgpt-v7" ${state.settings.selectedModel === 'wormgpt-v7' ? 'selected' : ''}>WormGPT</option>
+            <option value="gemini-1.5-flash" ${state.settings.selectedModel === 'gemini-1.5-flash' ? 'selected' : ''}>Gemini 1.5 Flash</option>
+        </select>
+    `;
+    settingsDiv.appendChild(modelDiv);
+
     // AI System Prompt
     const promptDiv = document.createElement('div');
     promptDiv.className = 'settings-block';
@@ -1547,6 +1564,12 @@ function toggleSetting(setting, value) {
 function changeLanguage(lang) {
     state.settings.language = lang;
     showToast(`Language changed to ${lang}`);
+    saveSettings();
+}
+
+function changeModel(model) {
+    state.settings.selectedModel = model;
+    showToast(`AI Model changed to ${model}`);
     saveSettings();
 }
 
@@ -1786,20 +1809,15 @@ async function send() {
     chatbox.scrollTop = chatbox.scrollHeight;
 
     try {
-        const messagesPayload = [
-            { role: 'system', content: state.settings.systemPrompt || "You are a helpful AI assistant." },
-            { role: 'user', content: message }
-        ];
-
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
-                model: 'wormgpt-v7',
-                messages: messagesPayload
+                model: state.settings.selectedModel,
+                message: message,
+                systemPrompt: state.settings.systemPrompt
             })
         });
 
@@ -1807,25 +1825,27 @@ async function send() {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText}`);
+            throw new Error(`API Error ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
-        const botReply = data.choices[0]?.message?.content || 'No response from server';
+        let botReply;
+
+        // Urai respons berdasarkan model yang digunakan
+        if (state.settings.selectedModel === 'gemini-1.5-flash') {
+            botReply = data.candidates[0]?.content?.parts[0]?.text || 'No valid response from Gemini.';
+        } else {
+            botReply = data.choices[0]?.message?.content || 'No response from WormGPT.';
+        }
         
         // Tampilkan pesan bot di layar
         appendMsg('bot', botReply);
         triggerNotification("WRMGPT", "AI has replied.");
         
-        // --- PERBAIKAN BUG: PENYIMPANAN RESPON AI ---
-        // Gunakan activeChatId yang sudah dikunci tadi, JANGAN pakai state.currentChatId
-        // karena state.currentChatId mungkin sudah berubah jika user klik New Chat saat loading.
+        // Simpan respons AI ke riwayat
         const chatToUpdate = state.chatHistory.find(c => c.id === activeChatId);
-        
         if (chatToUpdate) {
             chatToUpdate.messages.push({ sender: 'bot', content: botReply });
-            
-            // 2. SIMPAN PESAN BOT (CHECKPOINT 2)
             if(currentUser) {
                 localStorage.setItem(getStorageKey('wrmgpt_chat_history'), JSON.stringify(state.chatHistory));
             }
