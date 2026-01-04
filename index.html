@@ -6,14 +6,14 @@
 <title>wrmgpt Mobile</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* --- VARIABLES (RED & BLACK) --- */
+    /* --- VARIABLES (BLUE & BLACK) --- */
     :root {
         --bg-color: #000000;
         --header-height: 55px;
-        --primary-red: #ff0000;
-        --dark-red: #5c0000;
-        --card-bg: #0f0505;
-        --border-color: #330000;
+        --primary-blue: #007bff;
+        --dark-blue: #004a99;
+        --card-bg: #050a0f;
+        --border-color: #002244;
         --text-main: #ffffff;
         --text-muted: #888888;
         --success-green: #00ff00;
@@ -30,7 +30,7 @@
         margin: 0;
         font-family: 'Inter', sans-serif;
         background-color: var(--bg-color);
-        background-image: radial-gradient(circle at top center, #2a0000 0%, #000000 60%);
+        background-image: radial-gradient(circle at top center, #002a4a 0%, #000000 60%);
         color: var(--text-main);
         height: 100dvh; 
         width: 100vw;
@@ -44,7 +44,7 @@
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         background-color: var(--bg-color);
-        background-image: radial-gradient(circle at top center, #2a0000 0%, #000000 60%);
+        background-image: radial-gradient(circle at top center, #002a4a 0%, #000000 60%);
         z-index: 9999;
         display: flex;
         flex-direction: column;
@@ -72,7 +72,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     
     .login-title {
-        color: var(--primary-red);
+        color: var(--primary-blue);
         font-size: 22px;
         font-weight: 700;
         margin-bottom: 8px;
@@ -95,10 +95,10 @@
         outline: none;
         transition: 0.3s;
     }
-    .login-input:focus { border-color: var(--primary-red); box-shadow: 0 0 10px rgba(255,0,0,0.1); }
+    .login-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 10px rgba(0,123,255,0.1); }
     
     .login-btn {
-        background: linear-gradient(90deg, #990000, #ff0000);
+        background: linear-gradient(90deg, var(--dark-blue), var(--primary-blue));
         color: white;
         border: none;
         padding: 12px;
@@ -108,7 +108,7 @@
         cursor: pointer;
         font-size: 15px;
         margin-top: 10px;
-        box-shadow: 0 4px 15px rgba(255,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(0,123,255,0.3);
         transition: 0.2s;
     }
     .login-btn:active { transform: scale(0.98); }
@@ -133,7 +133,7 @@
         left: 0;
         bottom: 0;
         width: 280px; 
-        background: #050000;
+        background: #00050a;
         border-right: 1px solid var(--border-color);
         z-index: 100;
         transform: translateX(-100%);
@@ -163,9 +163,9 @@
     .dot { 
         width: 8px; 
         height: 8px; 
-        background: var(--primary-red); 
+        background: var(--primary-blue);
         border-radius: 50%; 
-        box-shadow: 0 0 8px var(--primary-red); 
+        box-shadow: 0 0 8px var(--primary-blue);
     }
 
     /* Sidebar Body */
@@ -180,7 +180,7 @@
 
     .sidebar-body::-webkit-scrollbar { width: 4px; }
     .sidebar-body::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-body::-webkit-scrollbar-thumb { background: #330000; border-radius: 2px; }
+    .sidebar-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
 
     .sidebar-item {
         display: flex;
@@ -196,7 +196,7 @@
         -webkit-user-select: none;
         user-select: none;
     }
-    .sidebar-item:hover, .sidebar-item.active { background: var(--dark-red); color: white; }
+    .sidebar-item:hover, .sidebar-item.active { background: var(--dark-blue); color: white; }
     .sidebar-item svg { width: 18px; height: 18px; }
 
     /* Sidebar Footer */
@@ -208,7 +208,7 @@
     }
 
     .upgrade-btn {
-        background: linear-gradient(90deg, #990000, #ff0000);
+        background: linear-gradient(90deg, var(--dark-blue), var(--primary-blue));
         color: white;
         border: none;
         padding: 12px;
@@ -216,7 +216,7 @@
         font-weight: 600;
         width: 100%;
         cursor: pointer;
-        box-shadow: 0 4px 10px rgba(255,0,0,0.2);
+        box-shadow: 0 4px 10px rgba(0,123,255,0.2);
     }
 
     .trial-info { font-size: 11px; color: #666; margin-top: 10px; text-align: center; }
@@ -245,7 +245,7 @@
     .header-title {
         font-weight: 700;
         letter-spacing: 1px;
-        color: var(--primary-red);
+        color: var(--primary-blue);
         font-size: 16px;
     }
 
@@ -332,7 +332,7 @@
         transition: 0.2s;
     }
     .chat-history-item:hover {
-        background: var(--dark-red);
+        background: var(--dark-blue);
     }
 
     .chat-title {
@@ -378,7 +378,7 @@
         min-height: 80px;
     }
     .settings-textarea:focus {
-        border-color: var(--primary-red);
+        border-color: var(--primary-blue);
     }
 
     .settings-label {
@@ -425,7 +425,7 @@
     }
 
     input:checked + .toggle-slider {
-        background-color: var(--primary-red);
+        background-color: var(--primary-blue);
     }
 
     input:checked + .toggle-slider:before {
@@ -444,7 +444,7 @@
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background: var(--dark-red);
+        background: var(--dark-blue);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -479,7 +479,7 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: var(--dark-red);
+        background: var(--dark-blue);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -547,11 +547,11 @@
         -webkit-user-select: none;
         user-select: none;
     }
-    .feature-card:active { background: var(--dark-red); transform: scale(0.98); }
+    .feature-card:active { background: var(--dark-blue); transform: scale(0.98); }
 
     .card-text h3 { margin: 0; font-size: 15px; font-weight: 600; color: #fff; }
     .card-text p { margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted); }
-    .card-arrow { color: var(--primary-red); font-weight: bold; font-size: 20px; }
+    .card-arrow { color: var(--primary-blue); font-weight: bold; font-size: 20px; }
 
     /* --- CHATBOX --- */
     #chatbox {
@@ -597,7 +597,7 @@
     }
     
     .bot-avatar { 
-        background: linear-gradient(135deg, var(--primary-red), #990000); 
+        background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
         color: #fff; 
         border: 1px solid rgba(255,255,255,0.2); 
     }
@@ -630,7 +630,7 @@
     
     /* User Bubble */
     .msg-group.user .msg-content {
-        background: var(--dark-red);
+        background: var(--dark-blue);
         color: white;
         border: 1px solid var(--border-color);
         border-top-right-radius: 2px;
@@ -663,7 +663,7 @@
         align-items: center;
     }
     .input-container:focus-within { 
-        border-color: var(--primary-red); 
+        border-color: var(--primary-blue);
     }
 
     #input {
@@ -681,7 +681,7 @@
     #input::placeholder { color: #555; }
 
     .send-btn {
-        background: var(--primary-red); 
+        background: var(--primary-blue);
         color: white; 
         border: none;
         width: 38px; 
@@ -692,7 +692,7 @@
         justify-content: center;
         margin-left: 10px; 
         flex-shrink: 0; 
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
         cursor: pointer;
     }
     .send-btn:active { transform: scale(0.9); }
@@ -704,7 +704,7 @@
         bottom: 100px;
         left: 50%;
         transform: translateX(-50%) translateY(100px);
-        background: var(--dark-red);
+        background: var(--dark-blue);
         color: white;
         padding: 12px 20px;
         border-radius: 8px;
@@ -721,14 +721,14 @@
     /* --- STYLING KHUSUS KONTEN CHAT (Terminal & Highlight) --- */
     
     .msg-content strong, .msg-content b {
-        color: #ff0000;
+        color: #007bff;
         font-weight: 700;
-        text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+        text-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
     }
 
     .msg-content code {
-        background: rgba(255, 0, 0, 0.1);
-        color: #ff4444;
+        background: rgba(0, 123, 255, 0.1);
+        color: #449fff;
         padding: 2px 5px;
         border-radius: 4px;
         font-family: monospace;
