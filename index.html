@@ -381,6 +381,14 @@
         border-color: var(--primary-blue);
     }
 
+    .settings-select {
+        background: #111;
+        color: white;
+        border: 1px solid #444;
+        padding: 5px;
+        border-radius: 4px;
+    }
+
     .settings-label {
         font-size: 14px;
         color: white;
@@ -1085,7 +1093,8 @@ const state = {
         autoSave: true,
         language: "English",
         messageLimit: 5,
-        systemPrompt: "You are a helpful AI assistant.",
+        wormgptSystemPrompt: "You are a helpful AI assistant.",
+        geminiSystemPrompt: "You are a helpful AI assistant.",
         selectedModel: "gemini-2.5-flash"
     },
     messagesLeft: 5,
@@ -1157,12 +1166,24 @@ function loadUserData() {
     
     state.settings = {
         darkMode: true, notifications: true, autoSave: true,
-        language: "English", messageLimit: 5, systemPrompt: "You are a helpful AI assistant.",
+        language: "English", messageLimit: 5,
+        wormgptSystemPrompt: "You are a helpful AI assistant.",
+        geminiSystemPrompt: "You are a helpful AI assistant.",
         selectedModel: "wormgpt-v7"
     };
     
     if (savedSettings) {
-        state.settings = { ...state.settings, ...JSON.parse(savedSettings) };
+        const loadedSettings = JSON.parse(savedSettings);
+        state.settings = { ...state.settings, ...loadedSettings };
+
+        // Kompatibilitas mundur untuk prompt sistem tunggal
+        if (loadedSettings.systemPrompt && !loadedSettings.wormgptSystemPrompt) {
+            state.settings.wormgptSystemPrompt = loadedSettings.systemPrompt;
+        }
+        if (loadedSettings.systemPrompt && !loadedSettings.geminiSystemPrompt) {
+            state.settings.geminiSystemPrompt = loadedSettings.systemPrompt;
+        }
+
         if (!state.settings.selectedModel) {
             state.settings.selectedModel = 'wormgpt-v7';
         }
@@ -1435,24 +1456,33 @@ function loadSettings() {
     const modelDiv = document.createElement('div');
     modelDiv.className = 'settings-option';
     modelDiv.innerHTML = `
-        <div class="settings-label">AI Model</div>
-        <select style="background: #111; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px;"
-                onchange="changeModel(this.value)">
+        <div class="settings-label">AI model</div>
+        <select class="settings-select"
+                onchange="changeModel(this.value, this.options[this.selectedIndex].text)">
             <option value="wormgpt-v7" ${state.settings.selectedModel === 'wormgpt-v7' ? 'selected' : ''}>WormGPT</option>
             <option value="gemini-2.5-flash" ${state.settings.selectedModel === 'gemini-2.5-flash' ? 'selected' : ''}>Gemini 2.5 Flash</option>
         </select>
     `;
     settingsDiv.appendChild(modelDiv);
 
-    // AI System Prompt
-    const promptDiv = document.createElement('div');
-    promptDiv.className = 'settings-block';
-    promptDiv.innerHTML = `
-        <div class="settings-label">AI Persona / System Instruction</div>
-        <div class="settings-sublabel">Define how the AI should behave (e.g., "You are an expert lawyer").</div>
-        <textarea class="settings-textarea" placeholder="Enter system instructions here..." onchange="updateSystemPrompt(this.value)">${state.settings.systemPrompt}</textarea>
+    // AI System Prompts
+    const wormgptPromptDiv = document.createElement('div');
+    wormgptPromptDiv.className = 'settings-block';
+    wormgptPromptDiv.innerHTML = `
+        <div class="settings-label">WormGPT System Instruction</div>
+        <div class="settings-sublabel">Define how the WormGPT AI should behave.</div>
+        <textarea class="settings-textarea" placeholder="Enter system instructions here..." onchange="updateSystemPrompt(this.value, 'wormgpt')">${state.settings.wormgptSystemPrompt}</textarea>
     `;
-    settingsDiv.appendChild(promptDiv);
+    settingsDiv.appendChild(wormgptPromptDiv);
+
+    const geminiPromptDiv = document.createElement('div');
+    geminiPromptDiv.className = 'settings-block';
+    geminiPromptDiv.innerHTML = `
+        <div class="settings-label">Gemini System Instruction</div>
+        <div class="settings-sublabel">Define how the Gemini AI should behave.</div>
+        <textarea class="settings-textarea" placeholder="Enter system instructions here..." onchange="updateSystemPrompt(this.value, 'gemini')">${state.settings.geminiSystemPrompt}</textarea>
+    `;
+    settingsDiv.appendChild(geminiPromptDiv);
 
     // Dark Mode
     const darkModeDiv = document.createElement('div');
@@ -1495,7 +1525,7 @@ function loadSettings() {
     langDiv.className = 'settings-option';
     langDiv.innerHTML = `
         <div class="settings-label">Language</div>
-        <select style="background: #111; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px;" 
+        <select class="settings-select"
                 onchange="changeLanguage(this.value)">
             <option value="English" ${state.settings.language === 'English' ? 'selected' : ''}>English</option>
             <option value="Indonesian" ${state.settings.language === 'Indonesian' ? 'selected' : ''}>Indonesian</option>
@@ -1517,10 +1547,14 @@ function loadSettings() {
     settingsDiv.appendChild(clearDiv);
 }
 
-function updateSystemPrompt(value) {
-    state.settings.systemPrompt = value;
+function updateSystemPrompt(value, modelType) {
+    if (modelType === 'wormgpt') {
+        state.settings.wormgptSystemPrompt = value;
+    } else if (modelType === 'gemini') {
+        state.settings.geminiSystemPrompt = value;
+    }
     saveSettings();
-    showToast("System prompt updated");
+    showToast(`${modelType.charAt(0).toUpperCase() + modelType.slice(1)} system prompt updated`);
 }
 
 function toggleSetting(setting, value) {
@@ -1569,9 +1603,9 @@ function changeLanguage(lang) {
     saveSettings();
 }
 
-function changeModel(model) {
+function changeModel(model, modelName) {
     state.settings.selectedModel = model;
-    showToast(`AI Model changed to ${model}`);
+    showToast(`AI model changed to ${modelName}`);
     saveSettings();
 }
 
@@ -1825,8 +1859,8 @@ async function send() {
             };
 
             // Menambahkan system prompt jika ada
-            if (state.settings.systemPrompt) {
-                 requestBody.systemInstruction = { parts: [ { text: state.settings.systemPrompt } ] };
+            if (state.settings.geminiSystemPrompt) {
+                 requestBody.systemInstruction = { parts: [ { text: state.settings.geminiSystemPrompt } ] };
             }
 
             const response = await fetch(GEMINI_API_URL, {
@@ -1846,7 +1880,7 @@ async function send() {
         } else {
             // Logika WormGPT yang ada
             const messagesPayload = [
-                { role: 'system', content: state.settings.systemPrompt || "You are a helpful AI assistant." },
+                { role: 'system', content: state.settings.wormgptSystemPrompt || "You are a helpful AI assistant." },
                 { role: 'user', content: message }
             ];
 
