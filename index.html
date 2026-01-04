@@ -6,18 +6,27 @@
 <title>wrmgpt Mobile</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    /* --- VARIABLES (BLUE & BLACK) --- */
-    :root {
+    /* --- THEMEABLE VARIABLES --- */
+    :root, .theme-blue {
         --bg-color: #000000;
         --header-height: 55px;
-        --primary-blue: #007bff;
-        --dark-blue: #004a99;
+        --primary-color: #007bff;
+        --dark-color: #004a99;
         --card-bg: #050a0f;
         --border-color: #002244;
         --text-main: #ffffff;
         --text-muted: #888888;
         --success-green: #00ff00;
         --warning-yellow: #ffcc00;
+        --gradient: radial-gradient(circle at top center, #002a4a 0%, #000000 60%);
+    }
+
+    .theme-red {
+        --primary-color: #ff0000;
+        --dark-color: #990000;
+        --card-bg: #1a0000;
+        --border-color: #660000;
+        --gradient: radial-gradient(circle at top center, #660000 0%, #000000 60%);
     }
 
     * { 
@@ -30,7 +39,7 @@
         margin: 0;
         font-family: 'Inter', sans-serif;
         background-color: var(--bg-color);
-        background-image: radial-gradient(circle at top center, #002a4a 0%, #000000 60%);
+        background-image: var(--gradient);
         color: var(--text-main);
         height: 100dvh; 
         width: 100vw;
@@ -44,7 +53,7 @@
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
         background-color: var(--bg-color);
-        background-image: radial-gradient(circle at top center, #002a4a 0%, #000000 60%);
+        background-image: var(--gradient);
         z-index: 9999;
         display: flex;
         flex-direction: column;
@@ -72,7 +81,7 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     
     .login-title {
-        color: var(--primary-blue);
+        color: var(--primary-color);
         font-size: 22px;
         font-weight: 700;
         margin-bottom: 8px;
@@ -95,10 +104,10 @@
         outline: none;
         transition: 0.3s;
     }
-    .login-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 10px rgba(0,123,255,0.1); }
+    .login-input:focus { border-color: var(--primary-color); box-shadow: 0 0 10px rgba(0,123,255,0.1); }
     
     .login-btn {
-        background: linear-gradient(90deg, var(--dark-blue), var(--primary-blue));
+        background: linear-gradient(90deg, var(--dark-color), var(--primary-color));
         color: white;
         border: none;
         padding: 12px;
@@ -163,9 +172,9 @@
     .dot { 
         width: 8px; 
         height: 8px; 
-        background: var(--primary-blue);
+        background: var(--primary-color);
         border-radius: 50%; 
-        box-shadow: 0 0 8px var(--primary-blue);
+        box-shadow: 0 0 8px var(--primary-color);
     }
 
     /* Sidebar Body */
@@ -196,7 +205,7 @@
         -webkit-user-select: none;
         user-select: none;
     }
-    .sidebar-item:hover, .sidebar-item.active { background: var(--dark-blue); color: white; }
+    .sidebar-item:hover, .sidebar-item.active { background: var(--dark-color); color: white; }
     .sidebar-item svg { width: 18px; height: 18px; }
 
     /* Sidebar Footer */
@@ -208,7 +217,7 @@
     }
 
     .upgrade-btn {
-        background: linear-gradient(90deg, var(--dark-blue), var(--primary-blue));
+        background: linear-gradient(90deg, var(--dark-color), var(--primary-color));
         color: white;
         border: none;
         padding: 12px;
@@ -245,7 +254,7 @@
     .header-title {
         font-weight: 700;
         letter-spacing: 1px;
-        color: var(--primary-blue);
+        color: var(--primary-color);
         font-size: 16px;
     }
 
@@ -332,7 +341,7 @@
         transition: 0.2s;
     }
     .chat-history-item:hover {
-        background: var(--dark-blue);
+        background: var(--dark-color);
     }
 
     .chat-title {
@@ -378,7 +387,7 @@
         min-height: 80px;
     }
     .settings-textarea:focus {
-        border-color: var(--primary-blue);
+        border-color: var(--primary-color);
     }
 
     .settings-select {
@@ -433,7 +442,7 @@
     }
 
     input:checked + .toggle-slider {
-        background-color: var(--primary-blue);
+        background-color: var(--primary-color);
     }
 
     input:checked + .toggle-slider:before {
@@ -452,7 +461,7 @@
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background: var(--dark-blue);
+        background: var(--dark-color);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -487,7 +496,7 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: var(--dark-blue);
+        background: var(--dark-color);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -555,11 +564,11 @@
         -webkit-user-select: none;
         user-select: none;
     }
-    .feature-card:active { background: var(--dark-blue); transform: scale(0.98); }
+    .feature-card:active { background: var(--dark-color); transform: scale(0.98); }
 
     .card-text h3 { margin: 0; font-size: 15px; font-weight: 600; color: #fff; }
     .card-text p { margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted); }
-    .card-arrow { color: var(--primary-blue); font-weight: bold; font-size: 20px; }
+    .card-arrow { color: var(--primary-color); font-weight: bold; font-size: 20px; }
 
     /* --- CHATBOX --- */
     #chatbox {
@@ -605,7 +614,7 @@
     }
     
     .bot-avatar { 
-        background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+        background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
         color: #fff; 
         border: 1px solid rgba(255,255,255,0.2); 
     }
@@ -638,7 +647,7 @@
     
     /* User Bubble */
     .msg-group.user .msg-content {
-        background: var(--dark-blue);
+        background: var(--dark-color);
         color: white;
         border: 1px solid var(--border-color);
         border-top-right-radius: 2px;
@@ -671,7 +680,7 @@
         align-items: center;
     }
     .input-container:focus-within { 
-        border-color: var(--primary-blue);
+        border-color: var(--primary-color);
     }
 
     #input {
@@ -689,7 +698,7 @@
     #input::placeholder { color: #555; }
 
     .send-btn {
-        background: var(--primary-blue);
+        background: var(--primary-color);
         color: white; 
         border: none;
         width: 38px; 
@@ -712,7 +721,7 @@
         bottom: 100px;
         left: 50%;
         transform: translateX(-50%) translateY(100px);
-        background: var(--dark-blue);
+        background: var(--dark-color);
         color: white;
         padding: 12px 20px;
         border-radius: 8px;
@@ -1606,6 +1615,13 @@ function changeLanguage(lang) {
 function changeModel(model, modelName) {
     state.settings.selectedModel = model;
     showToast(`AI model changed to ${modelName}`);
+
+    if (model === 'wormgpt-v7') {
+        applyTheme('red');
+    } else {
+        applyTheme('blue');
+    }
+
     saveSettings();
 }
 
@@ -1958,6 +1974,16 @@ function triggerNotification(title, body) {
     }
 }
 
+// --- DYNAMIC THEME ---
+function applyTheme(theme) {
+    document.body.classList.remove('theme-red', 'theme-blue');
+    if (theme === 'red') {
+        document.body.classList.add('theme-red');
+    } else {
+        document.body.classList.add('theme-blue');
+    }
+}
+
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -1966,7 +1992,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (savedUser) {
         currentUser = savedUser;
-        loadUserData(); 
+        loadUserData();
+
+        // Apply theme based on saved model
+        if (state.settings.selectedModel === 'wormgpt-v7') {
+            applyTheme('red');
+        } else {
+            applyTheme('blue');
+        }
+
         document.getElementById('loginScreen').classList.add('hidden'); 
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
