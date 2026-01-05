@@ -1813,8 +1813,10 @@ async function send() {
         const data = await response.json();
         const botReply = data.choices[0]?.message?.content || 'No response from server';
         
-        // Tampilkan pesan bot di layar
-        appendMsg('bot', botReply);
+        // Tampilkan pesan bot di layar HANYA jika user masih di chat yang sama
+        if (state.currentChatId === activeChatId) {
+            appendMsg('bot', botReply);
+        }
         triggerNotification("WRMGPT", "AI has replied.");
         
         // --- PERBAIKAN BUG: PENYIMPANAN RESPON AI ---
@@ -1834,7 +1836,9 @@ async function send() {
     } catch (error) {
         document.getElementById(loadingId)?.remove();
         console.error(error);
-        appendMsg('bot', "Error: " + error.message);
+        if (state.currentChatId === activeChatId) {
+            appendMsg('bot', "Error: " + error.message);
+        }
     }
 }
 
