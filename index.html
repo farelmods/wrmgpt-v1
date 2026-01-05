@@ -11,6 +11,9 @@
         --bg-color: #000000;
         --header-height: 55px;
         --primary-color: #007bff;
+        --primary-shadow: rgba(0, 123, 255, 0.3);
+        --code-bg-color: rgba(0, 123, 255, 0.1);
+        --code-text-color: #449fff;
         --dark-color: #004a99;
         --card-bg: #050a0f;
         --border-color: #002244;
@@ -23,6 +26,9 @@
 
     .theme-red {
         --primary-color: #ff0000;
+        --primary-shadow: rgba(255, 0, 0, 0.3);
+        --code-bg-color: rgba(255, 0, 0, 0.1);
+        --code-text-color: #ff4444;
         --dark-color: #990000;
         --card-bg: #1a0000;
         --border-color: #660000;
@@ -739,14 +745,14 @@
     /* --- STYLING KHUSUS KONTEN CHAT (Terminal & Highlight) --- */
     
     .msg-content strong, .msg-content b {
-        color: #007bff;
+        color: var(--primary-color);
         font-weight: 700;
-        text-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        text-shadow: 0 0 5px var(--primary-shadow);
     }
 
     .msg-content code {
-        background: rgba(0, 123, 255, 0.1);
-        color: #449fff;
+        background: var(--code-bg-color);
+        color: var(--code-text-color);
         padding: 2px 5px;
         border-radius: 4px;
         font-family: monospace;
