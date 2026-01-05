@@ -1103,12 +1103,10 @@ const state = {
         notifications: true,
         autoSave: true,
         language: "English",
-        messageLimit: 5,
         wormgptSystemPrompt: "You are a helpful AI assistant.",
         geminiSystemPrompt: "You are a helpful AI assistant.",
-        selectedModel: "gemini-2.5-flash"
+        selectedModel: "wormgpt-v7"
     },
-    messagesLeft: 5,
     currentChatId: null
 };
 
@@ -1184,7 +1182,7 @@ function loadUserData() {
     
     state.settings = {
         darkMode: true, notifications: true, autoSave: true,
-        language: "English", messageLimit: 5,
+        language: "English",
         wormgptSystemPrompt: "You are a helpful AI assistant.",
         geminiSystemPrompt: "You are a helpful AI assistant.",
         selectedModel: "wormgpt-v7"
@@ -1214,7 +1212,7 @@ function loadUserData() {
 // --- API CONFIG ---
 const WRM_API_KEY = 'sk_live_d497343f-1fc4-46b7-b7b7-e873752b67dc823e';
 const WRM_API_URL = 'https://api.wrmgpt.com/v1/chat/completions';
-const GEMINI_API_KEY = 'AIzaSyB9CSOT7fh1kQGwvc90PRrXAbaLyERHfZs';
+const GEMINI_API_KEY = 'AIzaSyA4P7FLl9uMmXgg7LuTkAENaz3jcw8rRqw';
 const chatbox = document.getElementById('chatbox');
 const input = document.getElementById('input');
 const heroSection = document.getElementById('heroSection');
@@ -1478,7 +1476,7 @@ function loadSettings() {
         <select class="settings-select"
                 onchange="changeModel(this.value, this.options[this.selectedIndex].text)">
             <option value="wormgpt-v7" ${state.settings.selectedModel === 'wormgpt-v7' ? 'selected' : ''}>WormGPT</option>
-            <option value="gemini-1.5-flash" ${state.settings.selectedModel === 'gemini-1.5-flash' ? 'selected' : ''}>Gemini 1.5 Flash</option>
+            <option value="gemini-2.5-flash" ${state.settings.selectedModel === 'gemini-2.5-flash' ? 'selected' : ''}>Gemini 2.5 Flash</option>
         </select>
     `;
     settingsDiv.appendChild(modelDiv);
@@ -1798,11 +1796,6 @@ async function send() {
     const message = input.value.trim();
     if (!message) return;
 
-    if (state.messagesLeft <= 0) {
-        showToast("Message limit reached! Please upgrade.", 4000);
-        return;
-    }
-
     closeSidebar();
     activateChatMode();
     
@@ -1861,8 +1854,8 @@ async function send() {
     try {
         let botReply = 'No response from server';
 
-        if (state.settings.selectedModel === 'gemini-1.5-flash') {
-            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        if (state.settings.selectedModel === 'gemini-2.5-flash') {
+            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             const requestBody = {
                 contents: [
