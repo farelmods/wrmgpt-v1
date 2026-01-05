@@ -936,11 +936,6 @@
         </div>
     </div>
 
-    <!-- 3. FOOTER -->
-    <div class="sidebar-footer">
-        <button class="upgrade-btn" onclick="upgradePlan()">Upgrade Plan</button>
-        <div class="trial-info">Trial version: <span id="messagesLeft">5</span> messages left</div>
-    </div>
 </div>
 
 <!-- Modal Panels -->
@@ -1677,13 +1672,6 @@ function loadHelpContent() {
     `;
 }
 
-function upgradePlan() {
-    closeSidebar();
-    showToast("Redirecting to upgrade page...");
-    setTimeout(() => {
-        alert("Upgrade Feature\n\nContact Admin for Premium Access.");
-    }, 500);
-}
 
 // --- CHAT LOGIC ---
 
