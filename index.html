@@ -1136,6 +1136,13 @@ function performLogin() {
     
     loadUserData();
     
+    // Apply theme based on loaded settings
+    if (state.settings.selectedModel === 'wormgpt-v7') {
+        applyTheme('red');
+    } else {
+        applyTheme('blue');
+    }
+
     document.getElementById('loginScreen').classList.add('hidden');
     showToast(`Welcome, ${currentUser}`);
     
@@ -1471,7 +1478,7 @@ function loadSettings() {
         <select class="settings-select"
                 onchange="changeModel(this.value, this.options[this.selectedIndex].text)">
             <option value="wormgpt-v7" ${state.settings.selectedModel === 'wormgpt-v7' ? 'selected' : ''}>WormGPT</option>
-            <option value="gemini-2.5-flash" ${state.settings.selectedModel === 'gemini-2.5-flash' ? 'selected' : ''}>Gemini 2.5 Flash</option>
+            <option value="gemini-1.5-flash" ${state.settings.selectedModel === 'gemini-1.5-flash' ? 'selected' : ''}>Gemini 1.5 Flash</option>
         </select>
     `;
     settingsDiv.appendChild(modelDiv);
@@ -1826,10 +1833,6 @@ async function send() {
     // Tampilkan pesan user di layar
     appendMsg('user', message);
     
-    // Kurangi kuota
-    state.messagesLeft--;
-    document.getElementById('messagesLeft').textContent = state.messagesLeft;
-    
     // Reset input
     input.value = '';
     input.style.height = 'auto';
@@ -1858,8 +1861,8 @@ async function send() {
     try {
         let botReply = 'No response from server';
 
-        if (state.settings.selectedModel === 'gemini-2.5-flash') {
-            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        if (state.settings.selectedModel === 'gemini-1.5-flash') {
+            const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             const requestBody = {
                 contents: [
