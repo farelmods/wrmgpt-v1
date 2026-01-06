@@ -74,14 +74,15 @@
         pointer-events: none;
     }
     .login-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
+        background: rgba(0,0,0,0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         padding: 30px;
-        border-radius: 16px;
+        border-radius: 20px;
         width: 100%;
-        max-width: 320px;
+        max-width: 350px;
         text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         animation: fadeIn 0.5s ease;
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -258,7 +259,7 @@
     }
 
     .header-title {
-        font-weight: 700;
+        font-weight: 600;
         letter-spacing: 1px;
         color: var(--primary-color);
         font-size: 16px;
@@ -636,28 +637,28 @@
         font-size: 15px;
         line-height: 1.6;
         color: #e5e5e5;
-        padding: 12px 16px;
-        border-radius: 18px;
+        padding: 12px 18px;
+        border-radius: 20px;
         position: relative;
         max-width: 85%;
         word-wrap: break-word;
         overflow-wrap: break-word;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     /* Bot Bubble */
     .msg-group.bot .msg-content {
-        background: linear-gradient(135deg, #1A1A1A, #111);
-        border-top-left-radius: 4px;
+        background: #181818;
+        border-top-left-radius: 6px;
     }
 
     /* User Bubble */
     .msg-group.user .msg-content {
-        background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
+        background: linear-gradient(90deg, var(--dark-color), var(--primary-color));
         color: white;
         border-color: rgba(255, 255, 255, 0.1);
-        border-top-right-radius: 4px;
+        border-top-right-radius: 6px;
         text-align: left;
     }
 
@@ -667,24 +668,25 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        background: #000;
+        background: transparent;
         border-top: 1px solid var(--border-color);
         padding: 12px 16px;
         padding-bottom: calc(12px + env(safe-area-inset-bottom));
         z-index: 150;
         display: flex;
-        align-items: flex-end; /* Align based on growing textarea */
+        align-items: flex-end;
         gap: 10px;
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
     }
 
     .input-container {
-        flex: 1; /* Takes up remaining space */
-        background: #111;
-        border: 1px solid #444;
-        border-radius: 25px;
+        flex: 1;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
         display: flex;
-        padding: 14px 15px; /* Moved padding here */
+        padding: 12px 18px;
+        backdrop-filter: blur(5px);
+        transition: border-color 0.3s;
     }
     .input-container:focus-within {
         border-color: var(--primary-color);
@@ -696,7 +698,7 @@
         border: none;
         color: white;
         font-size: 16px;
-        padding: 0; /* Removed padding from here */
+        padding: 0;
         max-height: 120px;
         resize: none;
         font-family: inherit;
@@ -708,8 +710,8 @@
         background: var(--primary-color);
         color: white;
         border: none;
-        width: 38px;
-        height: 38px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -717,8 +719,9 @@
         flex-shrink: 0;
         box-shadow: 0 0 10px var(--primary-shadow);
         cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
     }
-    .send-btn:active { transform: scale(0.9); }
+    .send-btn:active { transform: scale(0.9); box-shadow: 0 0 5px var(--primary-shadow);}
     .send-btn svg { width: 18px; height: 18px; fill: white; margin-left: 2px; }
 
     /* Toast Notification */
@@ -866,7 +869,59 @@
         color: #000;
     }
 
-    
+    /* --- V2 RESPONSIVE & MODERN LAYOUT --- */
+    .main-app-container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+        body {
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            background: #111; /* Darker bg for desktop */
+        }
+
+        .main-app-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1200px; /* Max width for desktop */
+            height: 90vh;
+            max-height: 800px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar-drawer {
+            position: static;
+            transform: translateX(0);
+            width: 260px;
+            box-shadow: none;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .mobile-header { display: none; }
+        .menu-btn { display: none; }
+        .overlay { display: none !important; }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-wrapper {
+            position: relative; /* No longer absolute */
+            border-top: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+    }
 </style>
 </head>
 <body>
@@ -1016,64 +1071,66 @@
 <!-- Toast Notification -->
 <div class="toast" id="toast"></div>
 
-<!-- Main Content -->
-<div class="mobile-header">
-    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
-    <div class="header-title">WRMGPT</div>
-    <div style="width: 24px;"></div>
-</div>
+<!-- Main App Wrapper -->
+<div class="main-app-container">
+    <!-- Main Content -->
+    <div class="mobile-header">
+        <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+        <div class="header-title">WRMGPT V2</div>
+        <div style="width: 24px;"></div>
+    </div>
 
-<div class="content-area">
-    
-    <!-- Hero Section -->
-    <div class="hero-section" id="heroSection">
-        <h1 class="hero-title">Hello, User</h1>
-        <p class="hero-subtitle">Explore the system capabilities.</p>
-        
-        <div class="feature-list">
-            <div class="feature-card" onclick="sendSuggestion('Analyze Legal Insights and regulations.')">
-                <div class="card-text">
-                    <h3>Legal Insights</h3>
-                    <p>Explore legal topics & analysis</p>
+    <div class="content-area">
+        <!-- Hero Section -->
+        <div class="hero-section" id="heroSection">
+            <h1 class="hero-title">Hello, User</h1>
+            <p class="hero-subtitle">Explore the system capabilities.</p>
+
+            <div class="feature-list">
+                <div class="feature-card" onclick="sendSuggestion('Analyze Legal Insights and regulations.')">
+                    <div class="card-text">
+                        <h3>Legal Insights</h3>
+                        <p>Explore legal topics & analysis</p>
+                    </div>
+                    <div class="card-arrow">›</div>
                 </div>
-                <div class="card-arrow">›</div>
-            </div>
-            <div class="feature-card" onclick="sendSuggestion('Tell me about Global Justice trends.')">
-                <div class="card-text">
-                    <h3>Global Justice</h3>
-                    <p>International law & policy</p>
+                <div class="feature-card" onclick="sendSuggestion('Tell me about Global Justice trends.')">
+                    <div class="card-text">
+                        <h3>Global Justice</h3>
+                        <p>International law & policy</p>
+                    </div>
+                    <div class="card-arrow">›</div>
                 </div>
-                <div class="card-arrow">›</div>
-            </div>
-            <div class="feature-card" onclick="sendSuggestion('Impact of AI on Modern Law?')">
-                <div class="card-text">
-                    <h3>Law & Technology</h3>
-                    <p>Future of legal systems</p>
+                <div class="feature-card" onclick="sendSuggestion('Impact of AI on Modern Law?')">
+                    <div class="card-text">
+                        <h3>Law & Technology</h3>
+                        <p>Future of legal systems</p>
+                    </div>
+                    <div class="card-arrow">›</div>
                 </div>
-                <div class="card-arrow">›</div>
+                <div style="height: 20px;"></div>
             </div>
-            <div style="height: 20px;"></div>
+        </div>
+
+        <!-- Chatbox -->
+        <div id="chatbox">
+            <div class="msg-group bot">
+                <div class="avatar bot-avatar">AI</div>
+                <div class="msg-content">System initialized. Awaiting command.</div>
+            </div>
         </div>
     </div>
 
-    <!-- Chatbox -->
-    <div id="chatbox">
-        <div class="msg-group bot">
-            <div class="avatar bot-avatar">AI</div>
-            <div class="msg-content">System initialized. Awaiting command.</div>
+    <!-- Input Area -->
+    <div class="input-wrapper">
+        <div class="input-container">
+            <textarea id="input" rows="1" placeholder="Type a command..."
+                      oninput="autoResizeTextarea(this)"></textarea>
         </div>
+        <button class="send-btn" onclick="send()">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+        </button>
     </div>
-</div>
-
-<!-- Input Area -->
-<div class="input-wrapper">
-    <div class="input-container">
-        <textarea id="input" rows="1" placeholder="Type a command..."
-                  oninput="autoResizeTextarea(this)"></textarea>
-    </div>
-    <button class="send-btn" onclick="send()">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-    </button>
 </div>
 <script>
 // --- STATE MANAGEMENT ---
@@ -1139,7 +1196,11 @@ function performLogin() {
         applyTheme('blue');
     }
 
-    document.getElementById('loginScreen').classList.add('hidden');
+    const loginScreen = document.getElementById('loginScreen');
+    loginScreen.classList.add('hidden');
+    // Also set display to none to prevent it from capturing events
+    loginScreen.style.display = 'none';
+
     showToast(`Welcome, ${currentUser}`);
     
     document.getElementById('loginPassword').value = '';
@@ -1160,7 +1221,9 @@ function logout() {
     chatbox.classList.remove('active');
     
     document.getElementById('loginUsername').value = '';
-    document.getElementById('loginScreen').classList.remove('hidden');
+    const loginScreen = document.getElementById('loginScreen');
+    loginScreen.classList.remove('hidden');
+    loginScreen.style.display = 'flex'; // Restore display
     closeSidebar();
     showToast("Logged out successfully");
 }
@@ -1983,9 +2046,13 @@ document.addEventListener('DOMContentLoaded', function() {
             applyTheme('blue');
         }
 
-        document.getElementById('loginScreen').classList.add('hidden'); 
+        const loginScreen = document.getElementById('loginScreen');
+        loginScreen.classList.add('hidden');
+        loginScreen.style.display = 'none';
     } else {
-        document.getElementById('loginScreen').classList.remove('hidden');
+        const loginScreen = document.getElementById('loginScreen');
+        loginScreen.classList.remove('hidden');
+        loginScreen.style.display = 'flex';
     }
 
     // 2. SETUP UI
