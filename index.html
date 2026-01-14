@@ -35,6 +35,17 @@
         --gradient: radial-gradient(circle at top center, #660000 0%, #000000 60%);
     }
 
+    .theme-green {
+        --primary-color: #00ff00;
+        --primary-shadow: rgba(0, 255, 0, 0.3);
+        --code-bg-color: rgba(0, 255, 0, 0.1);
+        --code-text-color: #44ff44;
+        --dark-color: #009900;
+        --card-bg: #001a00;
+        --border-color: #006600;
+        --gradient: radial-gradient(circle at top center, #006600 0%, #000000 60%);
+    }
+
     * { 
         box-sizing: border-box; 
         outline: none; 
@@ -984,7 +995,7 @@
             Help center
         </div>
         <!-- TOMBOL LOGOUT (BARU) -->
-        <div class="sidebar-item" onclick="logout()" style="margin-top: 20px; color: #ff4444;">
+        <div class="sidebar-item" onclick="logout()" style="margin-top: 20px; color: var(--primary-color);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             Logout
         </div>
@@ -1192,8 +1203,10 @@ function performLogin() {
     // Apply theme based on loaded settings
     if (state.settings.selectedModel === 'wormgpt-v7') {
         applyTheme('red');
-    } else {
+    } else if (state.settings.selectedModel === 'gemini-2.5-flash') {
         applyTheme('blue');
+    } else if (state.settings.selectedModel === 'grok') {
+        applyTheme('green');
     }
 
     const loginScreen = document.getElementById('loginScreen');
@@ -1246,6 +1259,7 @@ function loadUserData() {
         language: "English",
         wormgptSystemPrompt: "You are a helpful AI assistant.",
         geminiSystemPrompt: "You are a helpful AI assistant.",
+        grokSystemPrompt: "You are a helpful AI assistant.",
         selectedModel: "wormgpt-v7"
     };
     
@@ -1273,7 +1287,7 @@ function loadUserData() {
 // --- API CONFIG ---
 const WRM_API_KEY = 'sk_live_d497343f-1fc4-46b7-b7b7-e873752b67dc823e';
 const WRM_API_URL = 'https://api.wrmgpt.com/v1/chat/completions';
-const GEMINI_API_KEY = 'AIzaSyB2yIVSmI_wFIFSjvboQtK77gPJ5xfDykg';
+const GEMINI_API_KEY = 'AIzaSyA4P7FLl9uMmXgg7LuTkAENaz3jcw8rRqw';
 const chatbox = document.getElementById('chatbox');
 const input = document.getElementById('input');
 const heroSection = document.getElementById('heroSection');
@@ -1531,6 +1545,7 @@ function loadSettings() {
                 onchange="changeModel(this.value, this.options[this.selectedIndex].text)">
             <option value="wormgpt-v7" ${state.settings.selectedModel === 'wormgpt-v7' ? 'selected' : ''}>WormGPT</option>
             <option value="gemini-2.5-flash" ${state.settings.selectedModel === 'gemini-2.5-flash' ? 'selected' : ''}>Gemini 2.5 Flash</option>
+            <option value="grok" ${state.settings.selectedModel === 'grok' ? 'selected' : ''}>Grok</option>
         </select>
     `;
     settingsDiv.appendChild(modelDiv);
@@ -1553,6 +1568,15 @@ function loadSettings() {
         <textarea class="settings-textarea" placeholder="Enter system instructions here..." onchange="updateSystemPrompt(this.value, 'gemini')">${state.settings.geminiSystemPrompt}</textarea>
     `;
     settingsDiv.appendChild(geminiPromptDiv);
+
+    const grokPromptDiv = document.createElement('div');
+    grokPromptDiv.className = 'settings-block';
+    grokPromptDiv.innerHTML = `
+        <div class="settings-label">Grok System Instruction</div>
+        <div class="settings-sublabel">Define how the Grok AI should behave.</div>
+        <textarea class="settings-textarea" placeholder="Enter system instructions here..." onchange="updateSystemPrompt(this.value, 'grok')">${state.settings.grokSystemPrompt}</textarea>
+    `;
+    settingsDiv.appendChild(grokPromptDiv);
 
     // Dark Mode
     const darkModeDiv = document.createElement('div');
@@ -1622,6 +1646,8 @@ function updateSystemPrompt(value, modelType) {
         state.settings.wormgptSystemPrompt = value;
     } else if (modelType === 'gemini') {
         state.settings.geminiSystemPrompt = value;
+    } else if (modelType === 'grok') {
+        state.settings.grokSystemPrompt = value;
     }
     saveSettings();
     showToast(`${modelType.charAt(0).toUpperCase() + modelType.slice(1)} system prompt updated`);
@@ -1679,8 +1705,10 @@ function changeModel(model, modelName) {
 
     if (model === 'wormgpt-v7') {
         applyTheme('red');
-    } else {
+    } else if (model === 'gemini-2.5-flash') {
         applyTheme('blue');
+    } else if (model === 'grok') {
+        applyTheme('green');
     }
 
     saveSettings();
@@ -1938,6 +1966,28 @@ async function send() {
             const data = await response.json();
             botReply = data.candidates[0]?.content?.parts[0]?.text || 'No valid response from Gemini.';
 
+        } else if (state.settings.selectedModel === 'grok') {
+            const GROK_API_URL = 'https://puruboy-api.vercel.app/api/ai/grok';
+
+            const fullMessage = (state.settings.grokSystemPrompt || "") + "\n\n" + message;
+
+            const response = await fetch(GROK_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: fullMessage })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Grok API Error ${response.status}: ${errorText}`);
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                botReply = data.result || 'No valid response from Grok.';
+            } else {
+                botReply = data.message || 'Grok API returned an error.';
+            }
         } else {
             // Logika WormGPT yang ada
             const messagesPayload = [
@@ -2021,11 +2071,13 @@ function triggerNotification(title, body) {
 
 // --- DYNAMIC THEME ---
 function applyTheme(theme) {
-    document.body.classList.remove('theme-red', 'theme-blue');
+    document.body.classList.remove('theme-red', 'theme-blue', 'theme-green');
     if (theme === 'red') {
         document.body.classList.add('theme-red');
-    } else {
+    } else if (theme === 'blue') {
         document.body.classList.add('theme-blue');
+    } else if (theme === 'green') {
+        document.body.classList.add('theme-green');
     }
 }
 
@@ -2042,8 +2094,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Apply theme based on saved model
         if (state.settings.selectedModel === 'wormgpt-v7') {
             applyTheme('red');
-        } else {
+        } else if (state.settings.selectedModel === 'gemini-2.5-flash') {
             applyTheme('blue');
+        } else if (state.settings.selectedModel === 'grok') {
+            applyTheme('green');
         }
 
         const loginScreen = document.getElementById('loginScreen');
