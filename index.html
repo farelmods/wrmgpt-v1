@@ -46,6 +46,17 @@
         --gradient: radial-gradient(circle at top center, #006600 0%, #000000 60%);
     }
 
+    .theme-purple {
+        --primary-color: #9b59b6;
+        --primary-shadow: rgba(155, 89, 182, 0.3);
+        --code-bg-color: rgba(155, 89, 182, 0.1);
+        --code-text-color: #c39bd3;
+        --dark-color: #6c3483;
+        --card-bg: #1a0f1e;
+        --border-color: #4a235a;
+        --gradient: radial-gradient(circle at top center, #4a235a 0%, #000000 60%);
+    }
+
     * { 
         box-sizing: border-box; 
         outline: none; 
@@ -888,51 +899,12 @@
         overflow: hidden;
     }
 
-    @media (min-width: 768px) {
-        body {
-            justify-content: center;
-            align-items: center;
-            display: flex;
-            background: #111; /* Darker bg for desktop */
-        }
-
-        .main-app-container {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-            max-width: 1200px; /* Max width for desktop */
-            height: 90vh;
-            max-height: 800px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 1px solid var(--border-color);
-        }
-
-        .sidebar-drawer {
-            position: static;
-            transform: translateX(0);
-            width: 260px;
-            box-shadow: none;
-            border-right: 1px solid var(--border-color);
-        }
-
-        .mobile-header { display: none; }
-        .menu-btn { display: none; }
-        .overlay { display: none !important; }
-
-        .content-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input-wrapper {
-            position: relative; /* No longer absolute */
-            border-top: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
+    .msg-content img {
+        max-width: 100%;
+        border-radius: 12px;
+        margin-top: 10px;
     }
+
 </style>
 </head>
 <body>
@@ -1171,7 +1143,8 @@ const state = {
         language: "English",
         wormgptSystemPrompt: "You are a helpful AI assistant.",
         geminiSystemPrompt: "You are a helpful AI assistant.",
-        selectedModel: "wormgpt-v7"
+        selectedModel: "wormgpt-v7",
+        ganarteSystemPrompt: "cinematic, high detail, epic composition"
     },
     currentChatId: null
 };
@@ -1207,6 +1180,8 @@ function performLogin() {
         applyTheme('blue');
     } else if (state.settings.selectedModel === 'grok') {
         applyTheme('green');
+    } else if (state.settings.selectedModel === 'ganarte') {
+        applyTheme('purple');
     }
 
     const loginScreen = document.getElementById('loginScreen');
@@ -1260,6 +1235,7 @@ function loadUserData() {
         wormgptSystemPrompt: "You are a helpful AI assistant.",
         geminiSystemPrompt: "You are a helpful AI assistant.",
         grokSystemPrompt: "You are a helpful AI assistant.",
+        ganarteSystemPrompt: "cinematic, high detail, epic composition",
         selectedModel: "wormgpt-v7"
     };
     
@@ -1546,6 +1522,7 @@ function loadSettings() {
             <option value="wormgpt-v7" ${state.settings.selectedModel === 'wormgpt-v7' ? 'selected' : ''}>WormGPT</option>
             <option value="gemini-2.5-flash" ${state.settings.selectedModel === 'gemini-2.5-flash' ? 'selected' : ''}>Gemini 2.5 Flash</option>
             <option value="grok" ${state.settings.selectedModel === 'grok' ? 'selected' : ''}>Grok</option>
+            <option value="ganarte" ${state.settings.selectedModel === 'ganarte' ? 'selected' : ''}>Ganarte (Image)</option>
         </select>
     `;
     settingsDiv.appendChild(modelDiv);
@@ -1577,6 +1554,15 @@ function loadSettings() {
         <textarea class="settings-textarea" placeholder="Enter system instructions here..." onchange="updateSystemPrompt(this.value, 'grok')">${state.settings.grokSystemPrompt}</textarea>
     `;
     settingsDiv.appendChild(grokPromptDiv);
+
+    const ganartePromptDiv = document.createElement('div');
+    ganartePromptDiv.className = 'settings-block';
+    ganartePromptDiv.innerHTML = `
+        <div class="settings-label">Ganarte System Instruction</div>
+        <div class="settings-sublabel">Applies styles to the generated image.</div>
+        <textarea class="settings-textarea" placeholder="e.g., cinematic, high detail" onchange="updateSystemPrompt(this.value, 'ganarte')">${state.settings.ganarteSystemPrompt}</textarea>
+    `;
+    settingsDiv.appendChild(ganartePromptDiv);
 
     // Dark Mode
     const darkModeDiv = document.createElement('div');
@@ -1648,6 +1634,8 @@ function updateSystemPrompt(value, modelType) {
         state.settings.geminiSystemPrompt = value;
     } else if (modelType === 'grok') {
         state.settings.grokSystemPrompt = value;
+    } else if (modelType === 'ganarte') {
+        state.settings.ganarteSystemPrompt = value;
     }
     saveSettings();
     showToast(`${modelType.charAt(0).toUpperCase() + modelType.slice(1)} system prompt updated`);
@@ -1709,6 +1697,8 @@ function changeModel(model, modelName) {
         applyTheme('blue');
     } else if (model === 'grok') {
         applyTheme('green');
+    } else if (model === 'ganarte') {
+        applyTheme('purple');
     }
 
     saveSettings();
@@ -1817,6 +1807,12 @@ function showCopiedEffect(btn) {
 
 function formatMessage(text) {
     if (!text) return '';
+
+    // Check for our special image URL format
+    if (text.startsWith("IMG_URL::")) {
+        const imageUrl = text.substring(9);
+        return `<img src="${imageUrl}" alt="Generated Image" onload="this.scrollIntoView({ behavior: 'smooth', block: 'end' });">`;
+    }
 
     let formatted = text
         .replace(/&/g, "&amp;")
@@ -1936,7 +1932,32 @@ async function send() {
     try {
         let botReply = 'No response from server';
 
-        if (state.settings.selectedModel === 'gemini-2.5-flash') {
+        if (state.settings.selectedModel === 'ganarte') {
+            const GANARTE_API_URL = 'https://puruboy-api.vercel.app/api/ai/flux';
+
+            // Gabungkan prompt dengan instruksi sistem
+            const fullPrompt = `${message}, ${state.settings.ganarteSystemPrompt || ""}`;
+
+            const response = await fetch(GANARTE_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: fullPrompt })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ganarte API Error ${response.status}: ${await response.text()}`);
+            }
+
+            const responseText = await response.text();
+            // Ekstrak URL dari respons teks
+            const urlMatch = responseText.match(/\[true\]\s*(https?:\/\/\S+)/);
+            if (urlMatch && urlMatch[1]) {
+                botReply = `IMG_URL::${urlMatch[1]}`;
+            } else {
+                botReply = 'Failed to extract image URL from response.';
+            }
+
+        } else if (state.settings.selectedModel === 'gemini-2.5-flash') {
             const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             const requestBody = {
@@ -2071,13 +2092,15 @@ function triggerNotification(title, body) {
 
 // --- DYNAMIC THEME ---
 function applyTheme(theme) {
-    document.body.classList.remove('theme-red', 'theme-blue', 'theme-green');
+    document.body.classList.remove('theme-red', 'theme-blue', 'theme-green', 'theme-purple');
     if (theme === 'red') {
         document.body.classList.add('theme-red');
     } else if (theme === 'blue') {
         document.body.classList.add('theme-blue');
     } else if (theme === 'green') {
         document.body.classList.add('theme-green');
+    } else if (theme === 'purple') {
+        document.body.classList.add('theme-purple');
     }
 }
 
@@ -2098,6 +2121,8 @@ document.addEventListener('DOMContentLoaded', function() {
             applyTheme('blue');
         } else if (state.settings.selectedModel === 'grok') {
             applyTheme('green');
+        } else if (state.settings.selectedModel === 'ganarte') {
+            applyTheme('purple');
         }
 
         const loginScreen = document.getElementById('loginScreen');
