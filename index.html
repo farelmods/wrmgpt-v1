@@ -1808,12 +1808,7 @@ function showCopiedEffect(btn) {
 function formatMessage(text) {
     if (!text) return '';
 
-    // Check for our special image URL format
-    if (text.startsWith("IMG_URL::")) {
-        const imageUrl = text.substring(9);
-        return `<img src="${imageUrl}" alt="Generated Image" onload="this.scrollIntoView({ behavior: 'smooth', block: 'end' });">`;
-    }
-
+    // IMG_URL logic is now handled directly in appendMsg for reliability
     let formatted = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -1857,11 +1852,43 @@ function appendMsg(sender, text) {
 
     const content = document.createElement('div');
     content.className = 'msg-content';
-    
-    if (sender === 'bot') {
+
+    // --- PERBAIKAN BUG GAMBAR: Logika render yang kuat ---
+    if (sender === 'bot' && text.startsWith("IMG_URL::")) {
+        const imageUrl = text.substring(9).trim();
+        const img = document.createElement('img');
+        img.alt = "Generating image...";
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '12px';
+        img.style.marginTop = '10px';
+        content.appendChild(img);
+
+        // Ambil gambar sebagai blob untuk melewati masalah Content-Type
+        fetch(imageUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.blob();
+            })
+            .then(blob => {
+                const objectURL = URL.createObjectURL(blob);
+                img.src = objectURL;
+                img.alt = "Generated Image";
+                img.onload = () => {
+                    // Hapus object URL setelah gambar dimuat untuk menghemat memori
+                    URL.revokeObjectURL(objectURL);
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                };
+            })
+            .catch(error => {
+                console.error('Image fetch error:', error);
+                img.alt = "Failed to load image.";
+                content.textContent = `Error loading image. URL: ${imageUrl}`;
+            });
+
+    } else if (sender === 'bot') {
         content.innerHTML = formatMessage(text);
     } else {
-        content.textContent = text; 
+        content.textContent = text;
     }
 
     msgGroup.appendChild(avatar);
@@ -1948,13 +1975,30 @@ async function send() {
                 throw new Error(`Ganarte API Error ${response.status}: ${await response.text()}`);
             }
 
+            // --- PERBAIKAN DEFINITIF: Logika Pengambilan Dua Langkah ---
             const responseText = await response.text();
-            // Ekstrak URL dari respons teks
-            const urlMatch = responseText.match(/\[true\]\s*(https?:\/\/\S+)/);
-            if (urlMatch && urlMatch[1]) {
-                botReply = `IMG_URL::${urlMatch[1]}`;
+
+            // 1. Ekstrak URL sementara dari respons teks
+            const tempUrlMatch = responseText.match(/https?:\/\/[^\s]+/);
+            if (!tempUrlMatch) {
+                throw new Error("Could not find temporary URL in API response: " + responseText);
+            }
+            const tempUrl = tempUrlMatch[0];
+
+            // 2. Lakukan fetch kedua ke URL sementara untuk mendapatkan URL gambar final
+            const finalResponse = await fetch(tempUrl);
+            if (!finalResponse.ok) {
+                throw new Error(`Failed to fetch final image URL. Status: ${finalResponse.status}`);
+            }
+
+            const finalData = await finalResponse.json();
+
+            // 3. Ekstrak URL gambar final dari JSON
+            if (finalData.success && finalData.result && finalData.result.url) {
+                const finalImageUrl = finalData.result.url;
+                botReply = `IMG_URL::${finalImageUrl}`;
             } else {
-                botReply = 'Failed to extract image URL from response.';
+                botReply = 'Failed to get final image URL from API. Response: ' + JSON.stringify(finalData);
             }
 
         } else if (state.settings.selectedModel === 'gemini-2.5-flash') {
